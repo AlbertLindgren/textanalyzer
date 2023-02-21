@@ -47,7 +47,7 @@ void incrementMap(std::string sentence, std::map<int, int> (&sentences))
 	
 }
 
-void countWords(std::stringstream& buffer, std::map<int, int> (&sentences))
+void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
 {
 	std::string text = buffer.str();
 	std::string sentence = "";
@@ -78,6 +78,41 @@ void countWords(std::stringstream& buffer, std::map<int, int> (&sentences))
 		}
 	}
 
+}
+
+void searchWordcount(int wordcount, std::string text)
+{
+	std::string sentence = "";
+	int start = 0;
+	int end = 0;
+
+	for (int i = 0; i < text.size(); i++)
+	{
+		if (isupper(text[i]) && sentence.size() == 0)
+		{
+			std::cout << "Uppercase: " << text[i] << std::endl;
+			start = i;
+		}
+		else if (text[i] == '.')
+		{
+			end = i;
+			for (int j = start; j <= end; j++)
+			{
+				sentence.push_back(text[j]);
+			}
+
+			sentence.clear();
+		}
+		else if (isupper(text[i]) && sentence.size() != 0)
+		{
+			sentence.clear();
+		}
+	}
+}
+
+void searchHighestFrequency(int frequency, std::string text, std::map<int,int> (&sentences))
+{
+	// Use searchWordcount() to get sentence(s)
 }
 
 std::stringstream readFile(std::string filename)
@@ -136,21 +171,33 @@ int main()
 		
 		if (running)
 		{
-			countWords(buf1, sentences);
+			iterateText(buf1, sentences);
 
 			for (auto const& imap : sentences)
 				std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
 
+			std::cout << "------------------------------------------------------------\n";
+			int choice;
+			std::cout << "Choose action: \n";
+			std::cout << "1. Search for sentences matching the chosen wordcount\n";
+			std::cout << "2. Search for wordcount with highest frequency\n";
+			std::cout << "3. Analyze another text\n";
+			std::cout << "4. Exit\n";
+			std::cin >> choice;
+			switch (choice)
+			{
+				case 1:
 
-			std::cout << "Analyze another file? y/n" << std::endl;
-			std::cin >> input;
-			if (input == "y")
-			{
-				running = true;
-			}
-			else
-			{
-				running = false;
+					break;
+				case 2:
+
+					break;				
+				case 3:
+					running = true;
+					break;
+				case 4:
+					running = false;
+					break;
 			}
 		}
 	}
