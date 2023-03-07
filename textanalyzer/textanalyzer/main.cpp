@@ -44,7 +44,6 @@ void incrementMap(std::string sentence, std::map<int, int> (&sentences))
 
 	std::cout << "Sentence: " << sentence << std::endl;
 	std::cout << "Nbr words: " << words << std::endl;
-	
 }
 
 void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
@@ -56,12 +55,13 @@ void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
 
 	for (int i = 0; i < text.size(); i++)
 	{
-		if (isupper(text[i]) && sentence.size() == 0)
+		if (isupper(text[i]) && sentence.size() == 0 && start == 0)
 		{
 			std::cout << "Uppercase: " << text[i] << std::endl;
 			start = i;
 		}
-		else if (text[i] == '.')
+		else if (text[i] == '.' && end == 0 && 
+			(text[i-1] != 'e' && text[i+1] != 'g') && (text[i-1] != 'g' && text[i-2] != '.') && (text[i - 1] != 'i' && text[i + 1] != 'e') && (text[i - 1] != 'e' && text[i - 2] != '.'))
 		{
 			end = i;
 			for (int j = start; j <= end; j++)
@@ -71,11 +71,14 @@ void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
 			std::cout << "Incremented!" << std::endl;
 			incrementMap(sentence, sentences);
 			sentence.clear();
+			start = 0;
+			end = 0;
 		}
-		else if (isupper(text[i]) && sentence.size() != 0)
+		/*else if (isupper(text[i]) && sentence.size() != 0)
 		{
 			sentence.clear();
 		}
+		*/
 	}
 
 }
@@ -88,17 +91,21 @@ bool searchWordcount(int wordcount, std::string text)
 
 	for (int i = 0; i < text.size(); i++)
 	{
-		if (isupper(text[i]) && sentence.size() == 0)
+		if (isupper(text[i]) && sentence.size() == 0 && start == 0)
 		{
 			start = i;
 		}
-		else if (text[i] == '.')
+		else if (text[i] == '.' &&
+			(text[i - 1] != 'e' && text[i + 1] != 'g') && (text[i - 1] != 'g' && text[i - 2] != '.') && 
+			(text[i - 1] != 'i' && text[i + 1] != 'e') && (text[i - 1] != 'e' && text[i - 2] != '.'))
 		{
 			end = i;
 			for (int j = start; j <= end; j++)
 			{
 				sentence.push_back(text[j]);
 			}
+			start = 0;
+			end = 0;
 
 			// if wordcount == words 
 			// Count words:
@@ -149,10 +156,8 @@ bool searchFrequency(int frequency, std::string text, std::map<int, int>(&senten
 		if (frequency == imap.second)
 		{
 			sentenceLengths.push_back(imap.first);
-			std::cout << "TEST1\n";
 		}
 	}
-	//std::cout << "TEST2" << sentenceLengths[0] << std::endl;
 
 	for (int i = 0; i < text.size(); i++)
 	{
@@ -189,6 +194,7 @@ bool searchFrequency(int frequency, std::string text, std::map<int, int>(&senten
 				if (sentenceLengths[z] == words)
 				{
 					std::cout << "Matching frequency: \n";
+					std::cout << "Sentence length: " << sentenceLengths[z] << std::endl;
 					std::cout << sentence << std::endl;
 				}
 				else if (i == (text.size() - 1) && sentenceLengths[z] != words)
@@ -208,9 +214,26 @@ bool searchFrequency(int frequency, std::string text, std::map<int, int>(&senten
 	return true;
 }
 
-void searchHighestFrequency(int frequency, std::string text, std::map<int,int> (&sentences))
+void searchHighestFrequency(std::map<int,int> (&sentences))
 {
-	// Use searchWordcount() to get sentence(s)
+	int highestFrequency = 0;
+
+	// Extract sentence length with chosen frequency from map
+	for (auto const& imap : sentences)
+	{
+		if (imap.second > highestFrequency)
+		{
+			highestFrequency = imap.second;
+		}
+	}
+
+	for (auto const& imap : sentences)
+	{
+		if (imap.second == highestFrequency)
+		{
+			std::cout << "Highest frequency: " << imap.first << " words" << std::endl;
+		}
+	}
 }
 
 std::stringstream readFile(std::string filename)
@@ -261,6 +284,7 @@ int main()
 	// Variables
 	std::map<int, int> sentences;
 	bool running = true;
+	int totalWords = 0;
 
 	// Initialize map
 	for (int i = 1; i <= 100; i++)
@@ -281,9 +305,14 @@ int main()
 	else {
 		iterateText(buf1, sentences);
 
-		for (auto const& imap : sentences)
+		for (auto const& imap : sentences) {
+			totalWords += imap.first * imap.second;
 			std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
+		}
+		std::cout << "Wordtotal (excluding non-sentences): " << totalWords << std::endl;
+
 	}
+
 
 	
 	// Program loop
@@ -314,13 +343,26 @@ int main()
 					searchFrequency(input2, buf1.str(), sentences);
 					break;				
 				case 3:
-					
+					searchHighestFrequency(sentences);
 					break;
 				case 4:
-					enterText();
-					iterateText(buf1, sentences);
-					for (auto const& imap : sentences)
-						std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
+					if (enterText()) {
+
+
+						// Reset map
+						sentences.clear();
+						for (int i = 1; i <= 100; i++)
+						{
+							sentences.insert({ i, 0 });
+						}
+						iterateText(buf1, sentences);
+						totalWords = 0;
+						for (auto const& imap : sentences) {
+							std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
+							totalWords += imap.first * imap.second;
+						}
+						std::cout << "Wordtotal (excluding non-sentences): " << totalWords << std::endl;
+					}
 					break;
 				case 5:
 					running = false;
