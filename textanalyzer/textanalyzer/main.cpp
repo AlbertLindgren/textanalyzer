@@ -241,7 +241,9 @@ std::stringstream readFile(std::string filename)
 	std::stringstream buf;
 	std::ifstream t(filename);
 	buf << t.rdbuf();
-	if (buf.str().size() == 0)
+	bool run = true;
+
+	while (buf.str().size() == 0 && run == true)
 	{
 		std::string input;
 		std::cout << "Exception opening / reading file" << std::endl;
@@ -249,21 +251,24 @@ std::stringstream readFile(std::string filename)
 		std::cin >> input;
 		if (input == "y")
 		{
+			buf.clear();
 			std::cout << "Input filename: ";
 			std::cin >> input;
-			readFile(input);
+			std::ifstream t(input);
+			buf << t.rdbuf();
 		}
 		else
 		{
-			return buf;
+			run = false;
 		}
 	}
-
 
 	return buf;
 }
 
-bool enterText()
+
+
+std::stringstream enterText()
 {
 	// Input file name
 	std::string input;
@@ -271,12 +276,7 @@ bool enterText()
 	std::cin >> input;
 	std::cout << "\n";
 	std::stringstream buf1 = readFile(input);
-	if (buf1.str().size() == 0)
-	{
-		return false;
-	}
-
-	return true;
+	return buf1;
 }
 
 int main()
@@ -302,7 +302,8 @@ int main()
 	{
 		running = false;
 	}
-	else {
+	if (running)
+	{
 		iterateText(buf1, sentences);
 
 		for (auto const& imap : sentences) {
@@ -310,10 +311,7 @@ int main()
 			std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
 		}
 		std::cout << "Wordtotal (excluding non-sentences): " << totalWords << std::endl;
-
 	}
-
-
 	
 	// Program loop
 	// while cond
@@ -346,23 +344,27 @@ int main()
 					searchHighestFrequency(sentences);
 					break;
 				case 4:
-					if (enterText()) {
-
-
 						// Reset map
 						sentences.clear();
 						for (int i = 1; i <= 100; i++)
 						{
 							sentences.insert({ i, 0 });
 						}
-						iterateText(buf1, sentences);
-						totalWords = 0;
-						for (auto const& imap : sentences) {
-							std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
-							totalWords += imap.first * imap.second;
+						buf1 = enterText();
+						if (buf1.str().size() == 0)
+						{
+							running = false;
 						}
-						std::cout << "Wordtotal (excluding non-sentences): " << totalWords << std::endl;
-					}
+						if (running)
+						{
+							iterateText(buf1, sentences);
+							totalWords = 0;
+							for (auto const& imap : sentences) {
+								std::cout << "Words: " << imap.first << " | " << "Count: " << imap.second << std::endl;
+								totalWords += imap.first * imap.second;
+							}
+							std::cout << "Wordtotal (excluding non-sentences): " << totalWords << std::endl;
+						}
 					break;
 				case 5:
 					running = false;
