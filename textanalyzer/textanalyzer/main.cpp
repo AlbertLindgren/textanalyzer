@@ -41,9 +41,6 @@ void incrementMap(std::string sentence, std::map<int, int> (&sentences))
 				it->second += 1;
 		}
 	}
-
-	std::cout << "Sentence: " << sentence << std::endl;
-	std::cout << "Nbr words: " << words << std::endl;
 }
 
 void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
@@ -57,7 +54,6 @@ void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
 	{
 		if (isupper(text[i]) && sentence.size() == 0 && start == 0)
 		{
-			std::cout << "Uppercase: " << text[i] << std::endl;
 			start = i;
 		}
 		else if (text[i] == '.' && end == 0 && 
@@ -68,7 +64,6 @@ void iterateText(std::stringstream& buffer, std::map<int, int> (&sentences))
 			{
 				sentence.push_back(text[j]);
 			}
-			std::cout << "Incremented!" << std::endl;
 			incrementMap(sentence, sentences);
 			sentence.clear();
 			start = 0;
@@ -231,7 +226,7 @@ void searchHighestFrequency(std::map<int,int> (&sentences))
 	{
 		if (imap.second == highestFrequency)
 		{
-			std::cout << "Highest frequency: " << imap.first << " words" << std::endl;
+			std::cout << "Highest frequency: " << imap.first << " words, "  << "frequency: " << highestFrequency << std::endl;
 		}
 	}
 }
@@ -265,7 +260,6 @@ std::stringstream readFile(std::string filename)
 
 	return buf;
 }
-
 
 
 std::stringstream enterText()
